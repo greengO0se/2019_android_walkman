@@ -5,15 +5,16 @@ on:
 
 jobs:
   build-kernel:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies and AArch64 toolchain
+      - name: Install dependencies and GCC-9 AArch64 toolchain
         run: |
           sudo apt-get update
-          sudo apt-get install -y bc bison flex libssl-dev make libc6-dev libncurses5-dev lzop cpio gcc-aarch64-linux-gnu
+          sudo apt-get install -y bc bison flex libssl-dev make libc6-dev libncurses5-dev lzop cpio gcc-9-aarch64-linux-gnu
+          sudo ln -sf /usr/bin/aarch64-linux-gnu-gcc-9 /usr/bin/aarch64-linux-gnu-gcc
 
       - name: Verify Compiler Exists
         run: |
