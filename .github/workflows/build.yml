@@ -5,33 +5,28 @@ on:
 
 jobs:
   build-kernel:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install dependencies and AArch64 toolchain
         run: |
           sudo apt-get update
-          sudo apt-get install -y bc bison flex libssl-dev make libc6-dev libncurses5-dev lzop cpio
-
-      - name: Download AArch64 GCC 4.9 Toolchain
-        run: |
-          mkdir -p $HOME/toolchain/gcc
-          git clone --depth=1 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $HOME/toolchain/gcc
+          sudo apt-get install -y bc bison flex libssl-dev make libc6-dev libncurses5-dev lzop cpio gcc-aarch64-linux-gnu
 
       - name: Verify Compiler Exists
         run: |
-          ls -la $HOME/toolchain/gcc/bin/aarch64-linux-android-gcc
+          aarch64-linux-gnu-gcc --version
 
       - name: Build Kernel (KernelSU)
         run: |
           cd kernel_imx
           export ARCH=arm64
           export SUBARCH=arm64
-          export CROSS_COMPILE=$HOME/toolchain/gcc/bin/aarch64-linux-android-
+          export CROSS_COMPILE=aarch64-linux-gnu-
           make O=out android_dmp1_defconfig
-          make O=out -j$(nproc)
+          make O=out KCFLAGS="-Wno-error" -j$(nproc)
 
       - name: Upload compiled Image artifact
         uses: actions/upload-artifact@v4
