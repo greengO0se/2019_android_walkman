@@ -1,7 +1,7 @@
 name: Build Walkman Kernel
 
 on:
-  workflow_dispatch: # Запуск вручную кнопкой в интерфейсе GitHub
+  workflow_dispatch:
 
 jobs:
   build-kernel:
@@ -17,15 +17,19 @@ jobs:
 
       - name: Download AArch64 GCC 4.9 Toolchain
         run: |
-          mkdir -p ~/toolchain
-          git clone --depth=1 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 ~/toolchain/gcc
+          mkdir -p $HOME/toolchain/gcc
+          git clone --depth=1 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $HOME/toolchain/gcc
+
+      - name: Verify Compiler Exists
+        run: |
+          ls -la $HOME/toolchain/gcc/bin/aarch64-linux-android-gcc
 
       - name: Build Kernel (KernelSU)
         run: |
           cd kernel_imx
           export ARCH=arm64
           export SUBARCH=arm64
-          export CROSS_COMPILE=~/toolchain/gcc/bin/aarch64-linux-android-
+          export CROSS_COMPILE=$HOME/toolchain/gcc/bin/aarch64-linux-android-
           make O=out android_dmp1_defconfig
           make O=out -j$(nproc)
 
